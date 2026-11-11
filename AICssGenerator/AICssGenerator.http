@@ -1,0 +1,8 @@
+@HostAddress = https://localhost:7177
+
+POST {{HostAddress}}/api/generate-css
+Content-Type: application/json
+
+{
+    "prompt": "Cria um botão moderno, azul escuro, com cantos arredondados e texto branco."
+}

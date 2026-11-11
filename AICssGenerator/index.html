@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI CSS Generator | Portfolio</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 45%;
+            padding: 30px;
+            background-color: #252526;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-pane {
+            width: 55%;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #1e1e1e;
+            position: relative;
+        }
+
+        h1 {
+            color: #4ec9b0;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #858585;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #1e1e1e;
+            color: #9cdcfe;
+            border: 1px solid #3c3c3c;
+            border-radius: 6px;
+            padding: 15px;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            margin-bottom: 20px;
+        }
+
+            textarea:focus {
+                border-color: #007acc;
+            }
+
+        button {
+            background-color: #0e639c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+            button:hover {
+                background-color: #1177bb;
+            }
+
+        pre {
+            width: 100%;
+            height: calc(100vh - 250px);
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 15px;
+            overflow: auto;
+            color: #ce9178;
+            font-family: Consolas, monospace;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        .card-preview {
+            background: #2d2d2d;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 1px solid #3c3c3c;
+            min-width: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h1>AI CSS Generator</h1>
+        <p>Descreve o componente visual que imaginas e deixa o C# e a IA escreverem o código por ti.</p>
+
+        <textarea id="promptInput" placeholder="Ex: Cria um botão moderno, azul escuro, com cantos arredondados e efeito hover..."></textarea>
+        <button onclick="generateCSS()">Gerar com IA 🚀</button>
+
+        <pre id="codeOutput">/* O código CSS gerado aparecerá aqui... */</pre>
+    </div>
+
+    <div class="preview-pane">
+        <div class="card-preview">
+            <h3 style="margin-bottom: 20px; color: #fff;">Área de Teste Visual</h3>
+            <div id="elementContainer">
+                <button class="btn">Elemento de Exemplo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function generateCSS() {
+            const promptText = document.getElementById('promptInput').value;
+            const outputPre = document.getElementById('codeOutput');
+            const container = document.getElementById('elementContainer');
+
+            if (!promptText) return alert('Escreve um prompt primeiro!');
+
+            outputPre.innerText = 'A gerar código com IA... ⏳';
+
+            try {
+                const response = await fetch('https://localhost:7177/api/generate-css', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: promptText })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    let cleanCss = data.css.replace(/```css/g, '').replace(/```/g, '').trim();
+                    outputPre.innerText = cleanCss;
+
+                    let dynamicStyle = document.getElementById('dynamic-style');
+                    if (!dynamicStyle) {
+                        dynamicStyle = document.createElement('style');
+                        dynamicStyle.id = 'dynamic-style';
+                        document.head.appendChild(dynamicStyle);
+                    }
+                    dynamicStyle.innerHTML = cleanCss;
+
+                    container.innerHTML = `<button class="btn">Componente Gerado</button>`;
+                } else {
+                    outputPre.innerText = 'Erro ao comunicar com a API.';
+                }
+            } catch (error) {
+                outputPre.innerText = 'Erro de rede: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
